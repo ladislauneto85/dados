@@ -1,8 +1,8 @@
-# Instala as dependências
-pip install -r requirements.txt
+# Instala as dependências usando pip3
+pip3 install -r requirements.txt
 
-# Coleta os arquivos estáticos
-python manage.py collectstatic --no-input
+# Coleta os arquivos estáticos usando python3
+python3 manage.py collectstatic --no-input
 
-# Aplica as migrações do banco de dados
-python manage.py migrate
+# Aplica as migrações do banco de dados usando python3
+python3 manage.py migrate
