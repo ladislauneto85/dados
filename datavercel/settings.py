@@ -12,8 +12,26 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 
-# Use Csv para ler uma lista de hosts permitidos
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,.vercel.app', cast=Csv())
+# --- INÍCIO DA CORREÇÃO 1: ALLOWED_HOSTS ---
+# Esta seção foi alterada para ler a VERCEL_URL automaticamente
+
+# Obter a VERCEL_URL injetada pelo Vercel, se existir
+VERCEL_DEPLOY_URL = os.environ.get('VERCEL_URL')
+
+# Começa com hosts padrões para desenvolvimento local
+hosts = ['127.0.0.1', 'localhost']
+
+if VERCEL_DEPLOY_URL:
+    hosts.append(VERCEL_DEPLOY_URL)
+
+# Lê a variável de ambiente ALLOWED_HOSTS (que você pode definir no Vercel)
+# Se não estiver definida, usa a lista 'hosts' que acabamos de criar.
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    default=','.join(hosts),
+    cast=Csv()
+)
+# --- FIM DA CORREÇÃO 1 ---
 
 
 # Application definition
@@ -73,9 +91,18 @@ DB_PORT = config('DB_PORT')
 
 DATABASE_URL = f"postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
+
+# --- INÍCIO DA CORREÇÃO 2: DATABASE SSL ---
+# Adicionado 'ssl_require=True' para conectar ao Supabase
+
 DATABASES = {
-    'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
+    'default': dj_database_url.config(
+        default=DATABASE_URL, 
+        conn_max_age=600,
+        ssl_require=True  # <-- ADICIONADO PARA CONEXÃO COM SUPABASE
+    )
 }
+# --- FIM DA CORREÇÃO 2 ---
 
 
 # Password validation
@@ -102,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Bahia'
-USE_I18N = True
+USE_I1N = True
 USE_TZ = True
 
 
