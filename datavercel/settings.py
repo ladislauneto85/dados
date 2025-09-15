@@ -12,8 +12,8 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 
-# --- INÍCIO DA CORREÇÃO 1: ALLOWED_HOSTS ---
-# Esta seção foi alterada para ler a VERCEL_URL automaticamente
+# --- INÍCIO DA CORREÇÃO 1: ALLOWED_HOSTS (Versão Robusta) ---
+# Esta versão agora também remove o 'https://' da URL do Vercel
 
 # Obter a VERCEL_URL injetada pelo Vercel, se existir
 VERCEL_DEPLOY_URL = os.environ.get('VERCEL_URL')
@@ -22,7 +22,9 @@ VERCEL_DEPLOY_URL = os.environ.get('VERCEL_URL')
 hosts = ['127.0.0.1', 'localhost']
 
 if VERCEL_DEPLOY_URL:
-    hosts.append(VERCEL_DEPLOY_URL)
+    # Limpa a URL para garantir que não tem protocolo (como sugerido pela análise)
+    cleaned_host = VERCEL_DEPLOY_URL.replace('https://', '')
+    hosts.append(cleaned_host)
 
 # Lê a variável de ambiente ALLOWED_HOSTS (que você pode definir no Vercel)
 # Se não estiver definida, usa a lista 'hosts' que acabamos de criar.
@@ -93,13 +95,12 @@ DATABASE_URL = f"postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME
 
 
 # --- INÍCIO DA CORREÇÃO 2: DATABASE SSL ---
-# Adicionado 'ssl_require=True' para conectar ao Supabase
-
+# (Esta parte já estava correta, é para conectar ao Supabase)
 DATABASES = {
     'default': dj_database_url.config(
         default=DATABASE_URL, 
         conn_max_age=600,
-        ssl_require=True  # <-- ADICIONADO PARA CONEXÃO COM SUPABASE
+        ssl_require=True  # <-- Correção para Supabase
     )
 }
 # --- FIM DA CORREÇÃO 2 ---
@@ -125,11 +126,15 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
+# https://docs.djangoproject.com/en/5.2/topics/i1n/
 
 LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Bahia'
-USE_I1N = True
+
+# --- INÍCIO DA CORREÇÃO 3: Erro de digitação ---
+USE_I18N = True # <-- CORRIGIDO (era USE_I1N)
+# --- FIM DA CORREÇÃO 3 ---
+
 USE_TZ = True
 
 
