@@ -12,28 +12,29 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 
-# --- INÍCIO DA CORREÇÃO 1: ALLOWED_HOSTS (Versão Robusta) ---
-# Esta versão agora também remove o 'https://' da URL do Vercel
+# --- INÍCIO DA CORREÇÃO: ALLOWED_HOSTS (Versão Final e Robusta) ---
+# Esta versão agora adiciona a URL de Deploy E a URL de Produção
 
-# Obter a VERCEL_URL injetada pelo Vercel, se existir
-VERCEL_DEPLOY_URL = os.environ.get('VERCEL_URL')
-
-# Começa com hosts padrões para desenvolvimento local
 hosts = ['127.0.0.1', 'localhost']
 
+# Adiciona a URL de deploy (ex: dados-git-main...vercel.app)
+VERCEL_DEPLOY_URL = os.environ.get('VERCEL_URL')
 if VERCEL_DEPLOY_URL:
-    # Limpa a URL para garantir que não tem protocolo (como sugerido pela análise)
-    cleaned_host = VERCEL_DEPLOY_URL.replace('https://', '')
-    hosts.append(cleaned_host)
+    hosts.append(VERCEL_DEPLOY_URL.replace('https://', ''))
 
-# Lê a variável de ambiente ALLOWED_HOSTS (que você pode definir no Vercel)
-# Se não estiver definida, usa a lista 'hosts' que acabamos de criar.
+# Adiciona a URL de Produção (ex: dados-omega.vercel.app)
+VERCEL_PROD_URL = os.environ.get('VERCEL_PROJECT_PRODUCTION_URL')
+if VERCEL_PROD_URL:
+    hosts.append(VERCEL_PROD_URL.replace('https://', ''))
+
+# Lê a variável de ambiente ALLOWED_HOSTS (para domínios customizados)
+# Se não estiver definida, usa a lista de hosts que acabamos de criar.
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
     default=','.join(hosts),
     cast=Csv()
 )
-# --- FIM DA CORREÇÃO 1 ---
+# --- FIM DA CORREÇÃO ---
 
 
 # Application definition
